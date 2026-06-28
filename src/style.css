@@ -1,0 +1,339 @@
+/* 克制的"葬爱家族"风：黑/深紫底 + 1-2 荧光强调色。
+   华丽 = 在骗你；真界面（坦白）会切到极简。详见 PRD §13。 */
+:root {
+  --bg: #0b0410;
+  --panel: #16091f;
+  --ink: #d8c7e8;
+  --neon-pink: #ff2e88;
+  --neon-cyan: #28e0d0;
+  --dim: #5a4a6b;
+  --blood: #ff2e88;
+  --honest: #28e0d0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  color: var(--ink);
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+html { background: var(--bg); } /* 兜底底色挂在根上 */
+body { background: transparent; } /* 透明，露出下方 z-index:-1 的炫光层 */
+
+/* ---------- 舞台四周的"杀马特/葬爱"霓虹空间 ---------- */
+/* 纯装饰、铺满视口、置于 #app 之下；只用葬爱三色（粉/青/紫），不七彩，
+   且 stage 内部有实底色盖住，不影响玩法可读性。详见视觉规范 PRD §13。 */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+/* 第一层：流动的霓虹光斑，缓慢漂移 + 呼吸缩放 */
+body::before {
+  background:
+    radial-gradient(38% 46% at 18% 28%, #ff2e8866, transparent 70%),
+    radial-gradient(34% 42% at 82% 22%, #28e0d04d, transparent 70%),
+    radial-gradient(46% 54% at 74% 80%, #b026ff66, transparent 72%),
+    radial-gradient(40% 48% at 24% 78%, #ff6ab04d, transparent 72%),
+    radial-gradient(64% 64% at 50% 50%, #1a0a2a, transparent 78%);
+  filter: blur(26px) saturate(1.5);
+  animation: smartDrift 16s ease-in-out infinite alternate;
+}
+/* 第二层：旋转的霓虹光束 + 微闪，screen 混合叠出"炫光" */
+body::after {
+  background:
+    conic-gradient(from 0deg at 50% 50%,
+      transparent 0deg, #ff2e8833 18deg, transparent 46deg,
+      #28e0d033 92deg, transparent 128deg,
+      #b026ff3a 196deg, transparent 232deg,
+      #ff6ab033 300deg, transparent 340deg);
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: smartSpin 34s linear infinite, smartPulse 6s ease-in-out infinite;
+}
+
+@keyframes smartDrift {
+  0%   { transform: translate3d(-3%, -2%, 0) scale(1.05) rotate(-3deg); }
+  50%  { transform: translate3d(2%, 3%, 0) scale(1.16) rotate(2deg); }
+  100% { transform: translate3d(3%, -3%, 0) scale(1.08) rotate(4deg); }
+}
+@keyframes smartSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes smartPulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.72; }
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#stage {
+  position: relative;
+  width: min(92vw, 880px);
+  aspect-ratio: 8 / 5;
+  background: var(--panel);
+  border: 1px solid #3a1d52;
+  border-radius: 6px;
+  box-shadow: 0 0 60px #ff2e8833, 0 0 120px #b026ff22, inset 0 0 60px #00000080;
+  overflow: hidden;
+}
+
+#game { display: block; width: 100%; height: 100%; }
+
+/* ---------- HUD ---------- */
+#hud { position: absolute; inset: 0; pointer-events: none; }
+
+.hud-top {
+  position: absolute; top: 10px; left: 12px; right: 12px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.blood { display: flex; align-items: center; gap: 8px; }
+.blood-label { font-size: 13px; color: var(--neon-pink); text-shadow: 0 0 6px #ff2e8866; }
+.blood-bar {
+  width: 180px; height: 14px; background: #2a0f1c;
+  border: 1px solid #ff2e8855; border-radius: 8px; overflow: hidden;
+}
+.blood-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #ff2e88, #ff6ab0);
+  box-shadow: 0 0 10px #ff2e88aa; transition: width 0.18s linear;
+}
+
+.score { font-size: 13px; color: var(--dim); }
+
+.honest { margin-left: auto; display: flex; align-items: center; }
+.honest-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--honest); box-shadow: 0 0 8px var(--honest);
+  display: inline-block; transition: opacity 0.1s;
+}
+
+/* 提示横幅：移到顶部，不再压住玩法区与飘过的签名 */
+.prompt {
+  position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+  font-size: 16px; font-weight: 700; letter-spacing: 1px; line-height: 1.4;
+  color: #fff; text-shadow: 0 0 10px var(--neon-pink);
+  text-align: center; max-width: 90%; white-space: pre-line;
+  padding: 6px 18px; border-radius: 18px;
+  background: rgba(18, 6, 24, 0.55);
+}
+
+.chapter { font-size: 12px; color: var(--dim); letter-spacing: 1px; white-space: nowrap; }
+.chapter b { color: var(--neon-cyan); font-weight: 700; letter-spacing: 2px; }
+
+.narrator {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  font-size: 14px; color: var(--neon-cyan); text-shadow: 0 0 8px #28e0d055;
+  text-align: center; max-width: 86%; min-height: 18px;
+  transition: opacity 0.2s;
+}
+
+/* 角落签名带：真线索藏这里，默认很暗。放大时以左下为原点，避免溢出被裁切 */
+.corner-sig {
+  position: absolute; bottom: 8px; left: 12px;
+  font-size: 12px; color: var(--neon-cyan);
+  letter-spacing: 0.5px; max-width: 80%; padding-right: 12px;
+  transform-origin: left bottom;
+  transition: opacity 0.25s, text-shadow 0.25s, transform 0.25s;
+}
+
+#footer {
+  font-size: 11px; color: #3a2a48; letter-spacing: 0.5px;
+}
+
+/* ---------- 元层覆盖层 ---------- */
+#overlay {
+  position: absolute; inset: 0; z-index: 50;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; text-align: center; padding: 24px;
+  background: rgba(5, 1, 9, 0.92); backdrop-filter: blur(2px);
+}
+#overlay.hidden { display: none; }
+#overlay .big {
+  font-size: 96px; font-weight: 900; color: #fff;
+  text-shadow: 0 0 30px var(--neon-pink);
+}
+#overlay .elegy { font-size: 17px; color: var(--neon-pink); letter-spacing: 2px; }
+#overlay .sub { font-size: 14px; color: var(--dim); }
+#overlay .hint { font-size: 13px; color: var(--neon-cyan); margin-top: 10px; opacity: 0.85; }
+/* 每关结算的即时战绩行 */
+#overlay .statline { font-size: 15px; font-weight: 700; color: var(--neon-cyan); }
+#overlay.plain .statline { color: #0a7; }
+
+/* 真结局可分享战绩卡 */
+.ach { display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: 92%; margin-top: 4px; }
+.ach-title { font-size: 12px; letter-spacing: 4px; color: #999; }
+.ach-rank { font-size: 32px; font-weight: 900; color: #111; }
+.ach-grid { display: flex; gap: 26px; margin: 4px 0 6px; }
+.ach-cell { text-align: center; }
+.ach-num { font-size: 26px; font-weight: 800; color: #111; line-height: 1.1; }
+.ach-lab { font-size: 12px; color: #666; margin-top: 2px; }
+.ach-slogan { font-size: 14px; color: #333; font-style: italic; }
+/* 双截图梗：你以为的 vs 真实 */
+.ach-meme { display: flex; align-items: center; gap: 14px; margin: 6px 0; }
+.meme-col { text-align: center; }
+.meme-cap { font-size: 11px; color: #777; margin-bottom: 4px; }
+.meme-bar { width: 120px; height: 12px; background: #e3e3e3; border-radius: 6px; overflow: hidden; }
+.meme-bar i { display: block; height: 100%; background: #ff2e88; }
+.meme-bar.real i { background: #0a7; }
+.meme-vs { font-size: 18px; font-weight: 800; color: #999; }
+.ach-btns { display: flex; gap: 12px; margin-top: 10px; }
+.ach-btn {
+  font: inherit; font-size: 14px; font-weight: 700; padding: 10px 20px;
+  border-radius: 8px; border: 1px solid #0a7; background: #0a7; color: #fff; cursor: pointer;
+}
+.ach-btn.ghost { background: transparent; color: #0a7; }
+.ach-btn:active { transform: translateY(1px); }
+.ach-share {
+  display: none; margin-top: 10px; width: min(90vw, 460px); height: 56px;
+  font: inherit; font-size: 12px; color: #111; background: #f0f0f0;
+  border: 1px solid #ccc; border-radius: 6px; padding: 8px; resize: none;
+}
+.ach-share.show { display: block; }
+
+/* 真界面：坦白时切到极简素颜 —— 风格落差本身就是 truthSignal（PRD §13） */
+#overlay.plain {
+  background: #f7f7f7; color: #111; backdrop-filter: none;
+}
+#overlay.plain .big { color: #111; text-shadow: none; font-size: 40px; font-weight: 700; }
+#overlay.plain .elegy, #overlay.plain .sub { color: #444; letter-spacing: 0; }
+#overlay.plain .hint { color: #0a7; }
+
+.honest-dot.blink { animation: honestBlink 0.4s steps(2, start) infinite; }
+@keyframes honestBlink { 0% { opacity: 1; } 50% { opacity: 0.15; } 100% { opacity: 1; } }
+
+/* ---------- L4 伪 OS 假报错 ---------- */
+.meta-os {
+  position: absolute; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: #05010aee;
+  pointer-events: auto;
+}
+.os-window {
+  width: min(86%, 560px);
+  background: #1c1430;
+  border: 1px solid #4a2f6b;
+  border-radius: 6px;
+  box-shadow: 0 16px 60px #000a, 0 0 30px #ff2e8822;
+  overflow: hidden;
+  font-family: "PingFang SC", system-ui, sans-serif;
+}
+.os-titlebar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  background: linear-gradient(90deg, #3a1f55, #2a1740);
+  font-size: 13px; color: #e8d8ff;
+}
+.os-sig { margin-left: auto; font-size: 10px; color: #7a5fa0; }
+.os-x {
+  width: 20px; height: 18px; line-height: 16px; text-align: center;
+  border: 1px solid #6b4a8f; border-radius: 3px; cursor: pointer; color: #d8c7e8;
+}
+.os-x:hover { background: #ff2e8855; }
+.os-body { display: flex; gap: 14px; padding: 18px 16px; }
+.os-icon {
+  flex: 0 0 auto; width: 42px; height: 42px; border-radius: 50%;
+  background: #ff2e88; color: #fff; font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px #ff2e88aa;
+}
+.os-headline { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.os-desc { font-size: 13px; color: #c0a8d8; margin-bottom: 10px; min-height: 18px; }
+.os-stack {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px; line-height: 1.6; color: #6a5586;
+  background: #120c20; border: 1px solid #2c1d42; border-radius: 4px;
+  padding: 8px 10px; white-space: pre-wrap; margin: 0;
+}
+.os-real { color: #2a2238; cursor: pointer; transition: color 0.3s, text-shadow 0.3s; }
+.os-real:hover { color: #28e0d0; }
+.os-real.lit { color: #28e0d0; text-shadow: 0 0 10px #28e0d0aa; }
+.os-actions { padding: 12px 16px; text-align: right; background: #160f28; }
+.os-ok {
+  font: inherit; font-size: 13px; padding: 7px 22px;
+  background: linear-gradient(90deg, #ff2e88, #ff6ab0); color: #fff;
+  border: none; border-radius: 5px; cursor: pointer;
+  box-shadow: 0 0 14px #ff2e8866;
+}
+.os-ok:active { transform: translateY(1px); }
+
+/* ---------- 设置按钮 + 假设置面板 ---------- */
+.gear {
+  position: absolute; top: 8px; right: 10px; z-index: 40;
+  width: 26px; height: 26px; border-radius: 6px; cursor: pointer;
+  background: #1c1430cc; color: #b89fd8; border: 1px solid #3a2455;
+  font-size: 14px; line-height: 1; pointer-events: auto;
+}
+.gear:hover { color: #fff; border-color: var(--neon-pink); }
+.meta-os.settings { background: #05010ad8; }
+.set-card {
+  width: min(82%, 320px);
+  background: #16091f; border: 1px solid #3a2455; border-radius: 8px;
+  padding: 18px 18px 16px; color: var(--ink);
+}
+.set-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--neon-pink); }
+.set-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 0; font-size: 14px; }
+.set-row input[type='range'] { width: 130px; }
+.set-note { font-size: 12px; color: var(--neon-cyan); min-height: 18px; margin: 8px 0; }
+.set-close {
+  font: inherit; font-size: 13px; padding: 7px 18px; width: 100%; margin-top: 6px;
+  background: #2a1740; color: var(--ink); border: 1px solid #4a2f6b; border-radius: 6px; cursor: pointer;
+}
+
+/* ---------- L5 假胜利结算 ---------- */
+.meta-os.settle { background: #05010af2; }
+.settle-card {
+  width: min(86%, 480px); text-align: center;
+  background: linear-gradient(160deg, #2a1d14, #1c1430);
+  border: 1px solid #ffcf3a55; border-radius: 10px;
+  box-shadow: 0 16px 60px #000a, 0 0 40px #ffcf3a33;
+  padding: 26px 24px 20px;
+}
+.settle-emoji { font-size: 44px; }
+.settle-title {
+  font-size: 28px; font-weight: 900; color: #ffd95a; margin-top: 4px;
+  text-shadow: 0 0 18px #ffcf3a88;
+}
+.settle-desc { font-size: 14px; color: #d8c7a8; margin: 10px 0 18px; min-height: 18px; }
+.settle-claim {
+  font: inherit; font-size: 16px; font-weight: 800; padding: 12px 34px;
+  border: none; border-radius: 8px; cursor: pointer; color: #3a2400;
+  background: linear-gradient(90deg, #ffcf3a, #ffe79a);
+  box-shadow: 0 0 20px #ffcf3a88;
+}
+.settle-claim:active { transform: translateY(1px); }
+.settle-refuse {
+  margin-top: 18px; font-size: 12px; color: #2c2438; cursor: pointer;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.settle-refuse:hover { color: #28e0d0; }
+.settle-refuse.lit { color: #28e0d0; text-shadow: 0 0 10px #28e0d0aa; }
+
+.shake { animation: shake 0.32s; }
+@keyframes shake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-4px, 2px); }
+  50% { transform: translate(3px, -3px); }
+  75% { transform: translate(-2px, 3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shake { animation: none; }
+  .blood-fill { transition: none; }
+  body::before, body::after { animation: none; }
+}

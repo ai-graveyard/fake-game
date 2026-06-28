@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>这游戏在骗你</title>
+  </head>
+  <body>
+    <div id="app">
+      <div id="stage">
+        <canvas id="game"></canvas>
+        <!-- HUD：刻意做成"廉价默认模板"风，且其中数值会撒谎 -->
+        <div id="hud">
+          <div class="hud-top">
+            <div class="chapter" id="chapter"></div>
+            <div class="blood">
+              <span class="blood-label" id="bloodLabel">血量</span>
+              <div class="blood-bar"><div class="blood-fill" id="bloodFill"></div></div>
+            </div>
+            <div class="score" id="score">分数 0</div>
+            <!-- truthSignal：从不撒谎的像素灯 -->
+            <div class="honest" title="">
+              <span class="honest-dot" id="honestDot"></span>
+            </div>
+          </div>
+          <div class="prompt" id="prompt"></div>
+          <div class="narrator" id="narrator"></div>
+          <!-- 角落签名带：火星文，真线索的载体 -->
+          <div class="corner-sig" id="cornerSig"></div>
+        </div>
+        <!-- 设置按钮（点开是个会撒谎的假设置面板）-->
+        <button id="gear" class="gear" title="设置">⚙</button>
+        <!-- 元层覆盖层（葬礼/结算/坦白）-->
+        <div id="overlay" class="hidden"></div>
+      </div>
+      <footer id="footer">© 2026 這遊戲在騙你 · 妳眼睛看到の都是假の</footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "fake-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "《这游戏在骗你》——会对你撒谎的网页解谜游戏 (M0 原型)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}
