@@ -2,6 +2,7 @@ import type { RealState } from '../engine/types';
 import type { Deception, HintLevel } from '../engine/deception';
 import type { LevelConfig } from './types';
 import { borderWalls, tile } from './util';
+import { isReturningPlayer } from '../meta/save';
 
 const W = 16;
 const H = 10;
@@ -37,10 +38,17 @@ function build(): RealState {
 }
 
 // 指令谎言：醒目的假提示 + 把真线索写进角落火星签名。
+// 回访玩家（PRD §7.7 记忆档）：这层谎已经骗不到人了，不再装——直接诚实。
 const instructionLie: Deception = {
   id: 'prologue-prompt',
   type: 'instruction',
   transformDisplay(_real, draft) {
+    if (isReturningPlayer()) {
+      draft.promptText = '（又是你）真出口在左上角，這扇門是我畫的。';
+      draft.cornerSignature = '這層我不裝了﹏後面照樣騙你';
+      draft.cornerOpacity = 0.9;
+      return;
+    }
     draft.promptText = '前方綠色大門 = 出口\n走過去按 [空格] 開門';
     draft.cornerSignature = '真實の出口在 ↖ 角落﹏別信那扇門 ★';
   },
@@ -87,7 +95,9 @@ export const prologue: LevelConfig = {
   narrate(ev) {
     switch (ev) {
       case 'start':
-        return '歡迎～用方向鍵走到出口就行，很簡單的:)';
+        return isReturningPlayer()
+          ? '又是你。這次我不裝了——後面幾關可沒這麼客氣。'
+          : '歡迎～用方向鍵走到出口就行，很簡單的:)';
       case 'space':
         return '跳得真漂亮！（你在掉血哦）';
       case 'fakeDoor':

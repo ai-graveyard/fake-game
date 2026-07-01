@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "《这游戏在骗你》——会对你撒谎的网页解谜游戏 (M0 原型)",
+  "description": "《这游戏在骗你》——会对你撒谎的网页解谜游戏（序章 + 5 关 + 真结局，MVCP 已完成）",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -12,6 +12,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@types/node": "^26.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^9.17.0",

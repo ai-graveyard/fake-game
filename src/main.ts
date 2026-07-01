@@ -11,6 +11,7 @@ import { level5 } from './levels/level5';
 import { runFakeError } from './meta/fakeError';
 import { runFakeSettlement } from './meta/fakeSettlement';
 import { openSettings } from './meta/settings';
+import { markCleared } from './meta/save';
 import { audio } from './engine/audio';
 import { telemetry } from './engine/telemetry';
 import { setTruthMode, isTruthMode } from './engine/displayLayer';
@@ -137,11 +138,27 @@ function runMetaSettlement(): void {
   });
 }
 
+// 页面标题 / favicon（PRD §7.7 安全档）：平时是"在演"的荧光色，真通关后灰掉，标题坦白。
+const TITLE_LIE = '这游戏在骗你';
+const TITLE_TRUTH = '已關閉 · 謝謝你看穿我';
+function setFavicon(color: string): void {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="${color}"/></svg>`;
+  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  link.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 // 真结局：界面停止撒谎，切到极简素颜（PRD §13）+ 可分享战绩卡（PRD §16）
 function showEnding(): void {
   overlayUp = true;
   setChapter('__ending__');
   markCleared();
+  document.title = TITLE_TRUTH;
+  setFavicon('#888888');
   const truth = isTruthMode();
   const time = fmtTime(performance.now() - stats.start);
   const rank = rankFor(stats.fails);
@@ -150,6 +167,8 @@ function showEnding(): void {
     `它讓我主動「求死」才能通關——你敢信你眼前的血條嗎? #這遊戲在騙你`;
   const restart = (truthOn: boolean) => () => {
     overlayUp = false;
+    document.title = TITLE_LIE;
+    setFavicon('#ff2ec4');
     setTruthMode(truthOn);
     resetRun();
     telemetry.reset();
@@ -163,15 +182,6 @@ function showEnding(): void {
       truthMode: truth,
     },
   );
-}
-
-const CLEARED_KEY = 'fakegame_cleared';
-function markCleared(): void {
-  try {
-    localStorage.setItem(CLEARED_KEY, '1');
-  } catch {
-    /* 隐私模式忽略 */
-  }
 }
 
 // 输入：统一用 event.code（PRD §11.4）。覆盖层弹出时不喂给游戏。
@@ -226,5 +236,6 @@ function frame(): void {
 
 if (import.meta.env.DEV) (window as { __telemetry?: typeof telemetry }).__telemetry = telemetry;
 
+setFavicon('#ff2ec4');
 loadScene('prologue');
 requestAnimationFrame(frame);
