@@ -13,6 +13,7 @@ export class Hud {
   private overlay = el('overlay');
   private stage = el('stage');
   private chapter = el('chapter');
+  private floats = el('floats');
 
   // 顶部常驻的章节进度（推进感，不藏起来）
   setChapter(html: string): void {
@@ -34,8 +35,29 @@ export class Hud {
     this.honestDot.style.opacity = String(0.25 + 0.75 * clamp01(d.honestLight));
     this.honestDot.classList.toggle('blink', d.honestBlink);
     // 受击抖动
-    if (d.view.player.shake > 0) this.stage.classList.add('shake');
+    if (d.player.shake > 0) this.stage.classList.add('shake');
     else this.stage.classList.remove('shake');
+    this.renderFloats(d);
+  }
+
+  // 飘过的签名（第2关：真按键藏在其中一条里）。屏幕空间 DOM 文字，横向漂移。
+  private renderFloats(d: DisplayState): void {
+    const list = d.floats;
+    while (this.floats.childElementCount > list.length) {
+      this.floats.lastElementChild?.remove();
+    }
+    while (this.floats.childElementCount < list.length) {
+      this.floats.appendChild(document.createElement('span'));
+    }
+    const rows = Math.max(1, d.grid.h);
+    list.forEach((f, i) => {
+      const span = this.floats.children[i] as HTMLSpanElement;
+      span.textContent = f.text;
+      span.style.left = `${f.xFrac * 100}%`;
+      span.style.top = `${((f.y + 0.5) / rows) * 100}%`;
+      span.style.color = f.color;
+      span.style.opacity = String(Math.max(0, Math.min(1, f.opacity)));
+    });
   }
 
   showOverlay(o: WinOverlay, onContinue: () => void, statLine?: string): void {

@@ -143,6 +143,16 @@ body::after {
   transition: opacity 0.2s;
 }
 
+/* 飘过的签名层：屏幕空间漂移文字（真按键藏在其中一条里）。不挡点击。 */
+.floats { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.floats span {
+  position: absolute; transform: translate(-50%, -50%);
+  white-space: nowrap; font-size: 15px; letter-spacing: 1px;
+  text-shadow: 0 0 8px currentColor;
+  font-family: "PingFang SC", system-ui, sans-serif;
+  transition: opacity 0.2s;
+}
+
 /* 角落签名带：真线索藏这里，默认很暗。放大时以左下为原点，避免溢出被裁切 */
 .corner-sig {
   position: absolute; bottom: 8px; left: 12px;
