@@ -7,6 +7,11 @@
 空间纵深，谎言搬进了 3D 空间——有的门只有**绕到侧面**才看得出是假的，有的坑只有
 **低头转个视角**才会现形。序章 + 7 关 + 真结局 + 打磨系统均已做完并跑通。
 
+> 视觉上不再是"发光方块"：墙是带倒角的石砌块、门是带门框/门把/画板的立门、
+> 踏板是带发光顶面的基座、立柱有柱头柱础、深坑是真正下沉的凹腔、玩家是会漂浮自转的
+> 结晶体——全部**程序化细节建模 + PBR 材质 + 环境反射 + 实时阴影 + 泛光(bloom)**，
+> 不加载任何外部模型文件（零素材、零授权负担，产物依然可控）。
+
 > 架构纪律不变：`RealState →（谎言变换）→ DisplayState → 渲染层`，渲染层只能吃
 > DisplayState，碰不到真实状态（由 eslint `no-restricted-imports` 强制，见文末）。
 > 3D 化只是把 DisplayState 从"2D 砖块"升级成"3D 场景描述（道具 + 相机 + 灯光）"。
@@ -29,7 +34,8 @@
 
 ![视差悬空·侧视现形](docs/screenshots/07-level5-parallax-void.webp)
 
-**序章（3D）**——真正的相机 / 灯光 / 纵深，玩家是会发光的小球，按方向键在网格上移动。
+**序章（3D）**——真正的相机 / 灯光 / 纵深 / 阴影 / 泛光，玩家是会漂浮自转的发光结晶体，
+四周是带倒角的石砌墙，按方向键在网格上移动。
 
 ![序章 3D](docs/screenshots/08-prologue-3d.webp)
 
@@ -139,7 +145,7 @@ npm run lint       # eslint（含"渲染层禁读 RealState"架构规则）
 | `src/engine/game.ts` | 引擎编排：世界步进、胜负判定、旁白、失败重生、音效触发 | §5 §8 |
 | `src/engine/audio.ts` | 程序化音效（真/假两套 WebAudio）| §8 |
 | `src/engine/telemetry.ts` | 识破埋点（进入/通关/耗时/被骗次数）| §17 |
-| `src/render/sceneRenderer.ts` | **3D 渲染层**（Three.js）：把 DisplayState 的道具/相机/灯光摆成 3D 场景，**只能 import DisplayState**（eslint `no-restricted-imports` 强制）| §15.6 §15.2 |
+| `src/render/sceneRenderer.ts` | **3D 渲染层**（Three.js）：按 DisplayState 的 `shape` 程序化建模（门框/立柱/发光基座/下沉深坑/结晶体玩家）+ PBR 材质 + 环境反射 + 阴影 + bloom，**只能 import DisplayState**（eslint `no-restricted-imports` 强制）| §15.6 §15.2 |
 | `src/render/hud.ts` | HUD（DOM）：血条/提示/飘字/诚实灯，同样只吃 DisplayState | §15.6 |
 | `src/levels/*` | 关卡内容（声明式：build + deceptions + hintLadder + 旁白；含两关 3D 原生谜题）| §18 |
 | `src/meta/*` | 元层 DOM 场景：伪 OS 假报错 / 假胜利结算 / 假设置面板 / 通关记忆存档 | §5 §15.1 §7.7 |
@@ -150,8 +156,9 @@ npm run lint       # eslint（含"渲染层禁读 RealState"架构规则）
 ## 项目状态
 
 一周目内容（序章 + 7 关 + 真结局，含两关 3D 原生谜题）与打磨系统已经全部做完，
-`typecheck`/`lint`/`build` 全绿。3D 呈现引入了 Three.js，产物以它为主
-（gzip 后约 136KB，对一个 3D 网页游戏属正常体量）。
+`typecheck`/`lint`/`build` 全绿。3D 呈现引入了 Three.js（含程序化模型 + 后期 bloom），
+产物以它为主（gzip 后约 146KB，对一个带 PBR/阴影/泛光的 3D 网页游戏属正常体量），
+且**不加载任何外部模型/贴图文件**（全程序化生成）。
 
 还没做、且短期内不打算做的部分（裁剪与排期见 PRD §19/§22）：
 
