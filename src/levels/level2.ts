@@ -25,6 +25,7 @@ function build(): RealState {
     grid: { w: W, h: H },
     spawn: { x: 2, y: CY },
     player: { pos: { x: 2, y: CY }, facing: { x: 1, y: 0 } },
+    cameraYaw: 0,
     hp: 100,
     maxHp: 100,
     score: 0,

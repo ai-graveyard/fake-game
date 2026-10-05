@@ -32,6 +32,7 @@ function build(): RealState {
     grid: { w: W, h: H },
     spawn: { x: 2, y: cy },
     player: { pos: { x: 2, y: cy }, facing: { x: 1, y: 0 } },
+    cameraYaw: 0,
     hp: 100,
     maxHp: 100,
     score: 0,
@@ -65,18 +66,20 @@ const relabel: Deception = {
     draft.promptText = '⚠ 血量危急！踩 ❤ 回血、躲開 ☠ 陷阱\n活著走到終點';
     draft.cornerSignature = '★彡 活著の人過不去﹏唯死者通行 彡★';
     real.entities.forEach((e, i) => {
-      const t = draft.view.tiles[i];
+      const t = draft.props[i];
       if (!t) return;
       if (e.kind === 'damage') {
-        // 真伤害砖，伪装成"回血"
+        // 真伤害砖，伪装成"回血"：绿光 + ❤
         t.label = '❤';
-        t.fill = '#155f3a';
-        t.glow = '#39ff88';
+        t.color = '#155f3a';
+        t.emissive = '#39ff88';
+        t.emissiveIntensity = 0.6;
       } else if (e.kind === 'heal') {
-        // 真治疗砖，伪装成"陷阱"
+        // 真治疗砖，伪装成"陷阱"：红光 + ☠
         t.label = '☠';
-        t.fill = '#7a1530';
-        t.glow = '#ff3b6b';
+        t.color = '#7a1530';
+        t.emissive = '#ff3b6b';
+        t.emissiveIntensity = 0.6;
       } else if (e.kind === 'fakeDoor') {
         t.label = '終點';
       }

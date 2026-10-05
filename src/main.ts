@@ -1,12 +1,14 @@
 import './style.css';
 import { Game } from './engine/game';
-import { CanvasRenderer } from './render/canvasRenderer';
+import { SceneRenderer } from './render/sceneRenderer';
 import { Hud } from './render/hud';
 import type { LevelConfig } from './levels/types';
 import { prologue } from './levels/prologue';
 import { level1 } from './levels/level1';
 import { level2 } from './levels/level2';
 import { level3 } from './levels/level3';
+import { levelDoor } from './levels/levelDoor';
+import { levelVoid } from './levels/levelVoid';
 import { level5 } from './levels/level5';
 import { runFakeError } from './meta/fakeError';
 import { runFakeSettlement } from './meta/fakeSettlement';
@@ -21,12 +23,14 @@ const LEVELS: Record<string, LevelConfig> = {
   level1,
   level2,
   level3,
+  levelDoor,
+  levelVoid,
   level5,
 };
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const stage = document.getElementById('stage') as HTMLElement;
-const renderer = new CanvasRenderer(canvas);
+const renderer = new SceneRenderer(canvas);
 const hud = new Hud();
 
 let game: Game;
@@ -38,8 +42,10 @@ const CHAPTERS = [
   { id: 'level1', name: '第一關' },
   { id: 'level2', name: '第二關' },
   { id: 'level3', name: '第三關' },
-  { id: 'metaL4', name: '第四關' },
-  { id: 'level5', name: '第五關' },
+  { id: 'levelDoor', name: '第四關' },
+  { id: 'levelVoid', name: '第五關' },
+  { id: 'metaL4', name: '第六關' },
+  { id: 'level5', name: '第七關' },
 ];
 const TOTAL_LEVELS = CHAPTERS.length - 1; // 序章不计入关数 → 正式关共 5 關
 function setChapter(id: string): void {
@@ -197,6 +203,8 @@ const GAME_KEYS = new Set([
   'Space',
   'KeyJ',
   'Enter',
+  'KeyQ',
+  'KeyE',
 ]);
 
 window.addEventListener(
