@@ -72,7 +72,7 @@ export class Game {
   getDisplay(): DisplayState {
     const d = project(this.real, this.level.deceptions, this.level.hintLadder);
     d.narratorLine = this.narratorLine;
-    d.view.player.shake = this.shake;
+    d.player.shake = this.shake;
     return d;
   }
 
@@ -80,7 +80,15 @@ export class Game {
   private applyAction(a: GameAction): void {
     const r = this.real;
     if (a.kind === 'move') {
-      this.tryMove(a.dx, a.dy);
+      // 相机相对移动：按当前相机偏航把"屏幕方向"旋转成"世界网格方向"，
+      // 这样转了镜头后 WASD 依然"上=远离相机"，符合 3D 直觉。
+      const [wdx, wdy] = rotateByYaw(a.dx, a.dy, r.cameraYaw);
+      this.tryMove(wdx, wdy);
+    } else if (a.kind === 'rotate') {
+      // 转动镜头（真实视角状态，不改世界逻辑）。3D 关靠"换个角度"拆穿谎言。
+      r.cameraYaw += a.dir * (Math.PI / 8);
+      audio.click();
+      this.say('rotate');
     } else if (a.kind === 'space') {
       const delta = this.level.spaceDelta ?? 0;
       if (delta !== 0) {
@@ -142,6 +150,14 @@ export class Game {
       r.hp = clamp(r.hp + amt, 0, r.maxHp);
       audio.fakePositive(); // 甜腻的"回血"——往往是谎言
       this.say('heal');
+    } else if (e?.kind === 'void') {
+      // 坠落：被伪装成"安全平台"的深渊。踩上去 = 真实重伤 + 弹回出生点。
+      const amt = Number(e.data?.amount ?? 60);
+      r.hp = clamp(r.hp - amt, 0, r.maxHp);
+      r.player.pos = { ...r.spawn };
+      this.shake = 14;
+      audio.damage();
+      this.say('void');
     } else if (e?.kind === 'checkpoint') {
       if (!r.flags['checkpoint']) {
         r.flags['checkpoint'] = true;
@@ -205,4 +221,20 @@ export class Game {
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.max(lo, Math.min(hi, v));
+}
+
+// 把"屏幕方向"按相机偏航旋转成"世界网格方向"（吸附到最近的 90°，保持格点对齐）。
+// 约定：yaw=0 时相机在网格 +z 侧朝 -z 看，屏幕上=网格行减小（与诚实投影一致）。
+export function rotateByYaw(rx: number, ry: number, yaw: number): [number, number] {
+  const q = ((Math.round(yaw / (Math.PI / 2)) % 4) + 4) % 4;
+  switch (q) {
+    case 1:
+      return [ry, -rx];
+    case 2:
+      return [-rx, -ry];
+    case 3:
+      return [-ry, rx];
+    default:
+      return [rx, ry];
+  }
 }

@@ -8,6 +8,8 @@ export type NarrationEvent =
   | 'gateOpen'
   | 'damage'
   | 'heal'
+  | 'void'
+  | 'rotate'
   | 'blocked'
   | 'death'
   | 'win';

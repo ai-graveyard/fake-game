@@ -21,6 +21,11 @@ function defaultMap(code: string): GameAction {
     case 'KeyJ':
     case 'Enter':
       return { kind: 'confirm' };
+    // 相机转动：3D 关靠"换个角度看"拆穿假门/视差陷阱（PRD §15.x 3D 扩展）。
+    case 'KeyQ':
+      return { kind: 'rotate', dir: -1 };
+    case 'KeyE':
+      return { kind: 'rotate', dir: 1 };
     default:
       return { kind: 'none' };
   }

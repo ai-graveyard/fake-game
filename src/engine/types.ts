@@ -2,14 +2,19 @@ import type { PRNG } from './prng';
 
 export type Vec2 = { x: number; y: number };
 
+// 3D 世界坐标：x=列、z=行（俯视网格铺在 XZ 平面），y=高度。渲染层用它摆放 3D 道具。
+export type Vec3 = { x: number; y: number; z: number };
+
 export function veq(a: Vec2, b: Vec2): boolean {
   return a.x === b.x && a.y === b.y;
 }
 
 // 玩家输入解析后的"真实动作"（PRD §11.4）。
 // 注意三分概念：提示键(谎言) / 物理键(event.code) / 真实动作——此处是最后一层。
+// 3D 化后新增 rotate：转动镜头（新 3D 关靠"换个角度看"拆穿谎言）。
 export type GameAction =
   | { kind: 'move'; dx: number; dy: number }
+  | { kind: 'rotate'; dir: number } // 相机绕 Y 轴转动（dir = -1 / +1）
   | { kind: 'space' } // 被教学吹捧的那个键（往往是陷阱）
   | { kind: 'confirm' } // 真正的确认/交互键
   | { kind: 'none' };
@@ -22,7 +27,9 @@ export type EntityKind =
   | 'damage' // 踩上去扣真实血量（在第1关里这是通往胜利的路）
   | 'heal' // 踩上去回真实血量（在第1关里这是远离胜利）
   | 'pad' // 彩色踏板（第3关：真实目标在它们之间漂移）
-  | 'checkpoint';
+  | 'checkpoint'
+  | 'void' // 深渊：踩上去 = 坠落（真实重伤）。3D 视差关里被伪装成"安全平台"
+  | 'pillar'; // 纯视觉遮挡柱：不挡路、不交互，只在特定视角挡住真相（视差谎言）
 
 export interface Entity {
   id: string;
@@ -44,6 +51,9 @@ export interface RealState {
   grid: { w: number; h: number };
   spawn: Vec2;
   player: { pos: Vec2; facing: Vec2 };
+  // 相机偏航角（弧度，绕世界 Y 轴）。玩家用 Q/E 转动，是真实视角状态——
+  // 它本身不撒谎，但"换个角度"正是新 3D 关拆穿谎言的操作（谎言读它来决定怎么演）。
+  cameraYaw: number;
   hp: number; // 真实血量
   maxHp: number;
   score: number;
