@@ -73,22 +73,19 @@ body::after {
 }
 
 #app {
+  position: fixed;
+  inset: 0;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width: 100%;
 }
 
+/* 全屏铺满：3D 场景与 HUD/元层覆盖层占满整个视口，边到边。 */
 #stage {
-  position: relative;
-  width: min(92vw, 880px);
-  aspect-ratio: 8 / 5;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   background: var(--panel);
-  border: 1px solid #3a1d52;
-  border-radius: 6px;
-  box-shadow: 0 0 60px #ff2e8833, 0 0 120px #b026ff22, inset 0 0 60px #00000080;
   overflow: hidden;
 }
 
@@ -162,12 +159,16 @@ body::after {
   transition: opacity 0.25s, text-shadow 0.25s, transform 0.25s;
 }
 
+/* 页脚：全屏后固定在视口底部居中，不再占用布局高度 */
 #footer {
-  font-size: 11px; color: #3a2a48; letter-spacing: 0.5px;
+  position: fixed; left: 0; right: 0; bottom: 6px; z-index: 45;
+  text-align: center;
+  font-size: 11px; color: #6a5080; letter-spacing: 0.5px;
+  pointer-events: none;
 }
 /* 这一条是真的：不参与欺骗系统，特意给比周围文字更高的对比度 */
 #footer a {
-  color: var(--neon-cyan); text-decoration: none;
+  color: var(--neon-cyan); text-decoration: none; pointer-events: auto;
 }
 #footer a:hover { text-decoration: underline; }
 
@@ -240,7 +241,7 @@ body::after {
   pointer-events: auto;
 }
 .os-window {
-  width: min(86%, 560px);
+  width: min(90%, 680px);
   background: #1c1430;
   border: 1px solid #4a2f6b;
   border-radius: 6px;
@@ -297,7 +298,7 @@ body::after {
 .gear:hover { color: #fff; border-color: var(--neon-pink); }
 .meta-os.settings { background: #05010ad8; }
 .set-card {
-  width: min(82%, 320px);
+  width: min(88%, 380px);
   background: #16091f; border: 1px solid #3a2455; border-radius: 8px;
   padding: 18px 18px 16px; color: var(--ink);
 }
@@ -313,7 +314,7 @@ body::after {
 /* ---------- L5 假胜利结算 ---------- */
 .meta-os.settle { background: #05010af2; }
 .settle-card {
-  width: min(86%, 480px); text-align: center;
+  width: min(90%, 600px); text-align: center;
   background: linear-gradient(160deg, #2a1d14, #1c1430);
   border: 1px solid #ffcf3a55; border-radius: 10px;
   box-shadow: 0 16px 60px #000a, 0 0 40px #ffcf3a33;
