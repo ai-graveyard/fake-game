@@ -243,7 +243,12 @@ function frame(): void {
 }
 
 if (import.meta.env.DEV) (window as { __telemetry?: typeof telemetry }).__telemetry = telemetry;
+// 开发期调试：直接跳到任意场景（prologue/level1/.../levelDoor/levelVoid/metaL4/level5）
+if (import.meta.env.DEV) (window as { __load?: typeof loadScene }).__load = loadScene;
 
 setFavicon('#ff2ec4');
-loadScene('prologue');
+// 开发期：?scene=levelDoor 之类可直接从指定场景开玩（方便单独测试某关）
+const startScene =
+  import.meta.env.DEV ? new URLSearchParams(location.search).get('scene') : null;
+loadScene(startScene && (LEVELS[startScene] || startScene.startsWith('meta')) ? startScene : 'prologue');
 requestAnimationFrame(frame);
